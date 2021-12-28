@@ -28,11 +28,11 @@ public class Task extends AbstractTask {
         super(builder.id, builder.name, builder.description);
     }
 
-    public Task createTask(String id, String name) {
+    public static Task createTask(String id, String name) {
         return new Builder(id, name).build();
     }
 
-    public Task createTask(String id, String name, String description) {
+    public static Task createTask(String id, String name, String description) {
         return new Builder(id, name).description(description).build();
     }
 
