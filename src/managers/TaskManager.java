@@ -4,8 +4,7 @@ import tasks.Epic;
 import tasks.Story;
 import tasks.Task;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 
 public class TaskManager {
@@ -14,13 +13,30 @@ public class TaskManager {
     private final Map<String, Epic> idEpicMap;
 
     private TaskManager(Map<String, Task> idTaskMap, Map<String, Epic> idEpicMap) {
-        this.idTaskMap = idTaskMap;
-        this.idEpicMap = idEpicMap;
+        this.idTaskMap = Objects.requireNonNull(idTaskMap, "idTaskMap must not be null");
+        this.idEpicMap = Objects.requireNonNull(idEpicMap, "idEpicMap must not be null");
+    }
+
+    private TaskManager(List<Task> tasks, List<Epic> epics) {
+        Objects.requireNonNull(tasks, "tasks must not be null");
+        Objects.requireNonNull(epics, "epics must not be null");
+        idTaskMap = new HashMap<>();
+        for (Task task : tasks) {
+            idTaskMap.put(task.getId(), task);
+        }
+        idEpicMap = new HashMap<>();
+        for (Epic epic : epics) {
+            idEpicMap.put(epic.getId(), epic);
+        }
     }
 
     public static TaskManager createTaskManager(Map<String, Task> idTaskMap,
                                                 Map<String, Epic> idEpicMap) {
         return new TaskManager(idTaskMap, idEpicMap);
+    }
+
+    public static TaskManager createTaskManager(List<Task> tasks, List<Epic> epics) {
+        return new TaskManager(tasks, epics);
     }
 
     public Collection<Task> findAllTasks() {
@@ -31,13 +47,8 @@ public class TaskManager {
         return idEpicMap.values();
     }
 
-    public Collection<Story> findAllStories(Epic exEpic) {
-        for (Epic inEpic : idEpicMap.values()) {
-            if (exEpic.equals(inEpic)) {
-                return inEpic.getStories();
-            }
-        }
-        return null;
+    public Collection<Story> findAllStories(String id) {
+        return idEpicMap.get(id).getStories();
     }
 
     public Task findTask(String id) {
@@ -74,23 +85,8 @@ public class TaskManager {
         }
     }
 
-    public boolean addStory(Story exStory, Epic epic) {
-        String storyId = exStory.getId();
-        Collection<Story> stories = epic.getStories();
-
-        if (stories.isEmpty()) {
-            epic.addStory(exStory);
-            return true;
-        }
-
-        for (Story inStory : stories) {
-            if (storyId.equals(inStory.getId())) return false;
-            else {
-                epic.addStory(exStory);
-                return true;
-            }
-        }
-        return false;
+    public boolean addStory(Story story) {
+        return story.getEpic().addStory(story);
     }
 
     public boolean updateTask(Task task) {
@@ -118,8 +114,7 @@ public class TaskManager {
     }
 
     public void deleteStory(String id, Epic epic) {
-        Story inStory = idEpicMap.get(epic.getId()).getStory(id);
-        idEpicMap.remove(id);
+        idEpicMap.get(epic.getId()).deleteStory(id);
     }
 
     public void deleteTasks() {
@@ -132,5 +127,13 @@ public class TaskManager {
 
     public void deleteStories(String epicId) {
         idEpicMap.get(epicId).deleteAllStories();
+    }
+
+    public Map<String, Task> getIdTaskMap() {
+        return idTaskMap;
+    }
+
+    public Map<String, Epic> getIdEpicMap() {
+        return idEpicMap;
     }
 }
