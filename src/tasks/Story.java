@@ -45,7 +45,7 @@ public final class Story extends AbstractTask {
     }
 
     public boolean setStory(Story story) {
-        if (id.equals(story.getId())) {
+        if (story != null && id.equals(story.getId())) {
             setName(story.name);
             setDescription(story.description);
             setEpic(story.epic);
