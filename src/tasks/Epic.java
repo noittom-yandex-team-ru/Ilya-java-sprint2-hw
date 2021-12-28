@@ -13,7 +13,6 @@ public final class Epic extends AbstractTask {
         private final String id;
         private final String name;
         private String description;
-        private Collection<Story> stories;
 
         public Builder(String id, String name) {
             this.id = Objects.requireNonNull(id, "id must not be null");
@@ -25,11 +24,6 @@ public final class Epic extends AbstractTask {
             return this;
         }
 
-        public Builder stories(Collection<Story> stories) {
-            this.stories = stories;
-            return this;
-        }
-
         public Epic build() {
             return new Epic(this);
         }
@@ -37,7 +31,7 @@ public final class Epic extends AbstractTask {
 
     private Epic(Builder builder) {
         super(builder.id, builder.name, builder.description);
-        this.stories = builder.stories == null ? new ArrayList<>() : builder.stories;
+        this.stories = new ArrayList<>();
     }
 
     public static Epic createEpic(String id, String name) {
@@ -46,15 +40,6 @@ public final class Epic extends AbstractTask {
 
     public static Epic createEpic(String id, String name, String description) {
         return new Builder(id, name).description(description).build();
-    }
-
-    public static Epic createEpic(String id, String name, Collection<Story> stories) {
-        return new Builder(id, name).stories(stories).build();
-    }
-
-    public static Epic createEpic(String id, String name, String description,
-                                  Collection<Story> stories) {
-        return new Builder(id, name).description(description).stories(stories).build();
     }
 
     public Story getStory(String id) {
@@ -67,13 +52,18 @@ public final class Epic extends AbstractTask {
     }
 
     public boolean addStory(Story story) {
-        return stories.add(story);
+        if (this.equals(story.getEpic()) && stories.add(story)) {
+            checkState();
+            return true;
+        }
+        return false;
     }
 
     public boolean deleteStory(String id) {
         for (Story story : stories) {
             if (id.equals(story.getId())) {
                 stories.remove(story);
+                checkState();
                 return true;
             }
         }
@@ -82,6 +72,7 @@ public final class Epic extends AbstractTask {
 
     public void deleteAllStories() {
         stories.clear();
+        checkState();
     }
 
     public String getId() {
@@ -109,38 +100,40 @@ public final class Epic extends AbstractTask {
     }
 
     public void setStories(Collection<Story> stories) {
-        this.stories = stories;
+        int counterThisEpic = 0;
+        for (Story story : stories) {
+            if (this.equals(story.getEpic())) {
+                counterThisEpic++;
+            }
+        }
+        if (counterThisEpic == stories.size()) {
+            this.stories = stories;
+            checkState();
+        }
     }
 
     public boolean setEpic(Epic epic) {
-        if (id.equals(epic.getId())) {
+        if (epic != null && id.equals(epic.getId())) {
             setName(epic.name);
             setDescription(epic.description);
             setStories(epic.stories);
+            checkState();
             return true;
         }
         return false;
     }
 
-    public void setStateStory(String id, StateTask stateTask) {
-        Story story = getStory(id);
-        if (story != null) {
-            story.setStateTask(stateTask);
-        }
-        checkState();
-    }
-
     private void checkState() {
-        int counterStoriesWithNewStatus = 0;
-        int counterStoriesWithDoneStatus = 0;
+        int counterNewStatusStories = 0;
+        int counterDoneStatusStories = 0;
         for (Story story : stories) {
-            if (StateTask.NEW.equals(story.stateTask)) counterStoriesWithNewStatus++;
-            if (StateTask.DONE.equals(story.stateTask)) counterStoriesWithDoneStatus++;
+            if (StateTask.NEW.equals(story.stateTask)) counterNewStatusStories++;
+            if (StateTask.DONE.equals(story.stateTask)) counterDoneStatusStories++;
         }
         int storiesListLength = stories.size();
-        if (counterStoriesWithNewStatus == storiesListLength) {
+        if (counterNewStatusStories == storiesListLength) {
             stateTask = StateTask.NEW;
-        } else if (counterStoriesWithDoneStatus == storiesListLength) {
+        } else if (counterDoneStatusStories == storiesListLength) {
             stateTask = StateTask.DONE;
         } else {
             stateTask = StateTask.IN_PROGRESS;
