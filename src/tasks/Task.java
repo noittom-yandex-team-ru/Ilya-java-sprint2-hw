@@ -1,5 +1,7 @@
 package tasks;
 
+import tasks.enums.StateTask;
+
 import java.util.Objects;
 
 public class Task extends AbstractTask {
@@ -63,6 +65,15 @@ public class Task extends AbstractTask {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    @Override
+    public StateTask getStateTask() {
+        return super.getStateTask();
+    }
+
+    public void setStateTask(StateTask stateTask) {
+        this.stateTask = stateTask;
     }
 
     @Override
