@@ -2,6 +2,7 @@ import managers.TaskManager;
 import tasks.Epic;
 import tasks.Story;
 import tasks.Task;
+import tasks.enums.StateTask;
 
 import java.util.List;
 
@@ -111,16 +112,26 @@ public class Main {
         tm.updateTask(newTask);
         System.out.println(("Тест №17: " + newTask.equals(tm.findTask(TASK_ID_6))));
 
+        epic2.setStatusStory("1111", StateTask.DONE);
+        System.out.println(("Тест №17: " + StateTask.IN_PROGRESS.equals(epic2.getStateTask())));
+
+        epic2.setStatusStory("2222", StateTask.DONE);
+        System.out.println(("Тест №18: " + StateTask.DONE.equals(epic2.getStateTask())));
+
+        epic2.setStatusStory("2222", StateTask.IN_PROGRESS);
+        System.out.println(("Тест №19: " + StateTask.IN_PROGRESS.equals(epic2.getStateTask())));
+
         tm.deleteTask(TASK_ID_1);
-        System.out.println(("Тест №18: " + (tm.findAllTasks().size() == 5)));
+        System.out.println(("Тест №20: " + (tm.findAllTasks().size() == 5)));
 
         tm.deleteStories(EPIC_ID_1);
-        System.out.println(("Тест №19: " + tm.findAllStories(EPIC_ID_1).isEmpty()));
+        System.out.println(("Тест №21: " + tm.findAllStories(EPIC_ID_1).isEmpty()));
 
         tm.deleteEpics();
-        System.out.println(("Тест №20: " + tm.findAllEpics().isEmpty()));
+        System.out.println(("Тест №22: " + tm.findAllEpics().isEmpty()));
 
         tm.deleteTasks();
-        System.out.println(("Тест №21: " + tm.findAllTasks().isEmpty()));
+        System.out.println(("Тест №22: " + tm.findAllTasks().isEmpty()));
+
     }
 }
