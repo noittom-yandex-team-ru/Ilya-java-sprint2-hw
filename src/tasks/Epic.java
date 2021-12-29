@@ -123,6 +123,17 @@ public final class Epic extends AbstractTask {
         return false;
     }
 
+    public boolean setStatusStory(String id, StateTask stateTask) {
+        for (Story story : stories) {
+            if (id.equals(story.getId())) {
+                story.setStateTask(stateTask);
+                checkState();
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void checkState() {
         int counterNewStatusStories = 0;
         int counterDoneStatusStories = 0;
