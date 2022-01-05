@@ -133,5 +133,11 @@ public class Main {
         tm.deleteTasks();
         System.out.println(("Тест №22: " + tm.findAllTasks().isEmpty()));
 
+        for (int i = 0; i < 9; i++) {
+            tm.findStory(epic2, STORY_ID_1111);
+        }
+
+        // tm.getHistory().forEach(System.out::println); uncomment it to make sure that everything works as expected
+        System.out.println("Тест №23: " + (tm.getHistory().size() == 10));
     }
 }
