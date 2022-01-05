@@ -1,4 +1,4 @@
-import managers.TaskManager;
+import managers.InMemoryTasksManager;
 import tasks.Epic;
 import tasks.Story;
 import tasks.Task;
@@ -71,7 +71,7 @@ public class Main {
                 Task.createTask(TASK_ID_5, "Task5")
         );
 
-        TaskManager tm = TaskManager.createTaskManager(tasks, epics);
+        InMemoryTasksManager tm = InMemoryTasksManager.createTaskManager(tasks, epics);
         System.out.println("Тест №6: " + (tm.getIdEpicMap().size() == tm.findAllEpics().size()
                 && tm.getIdTaskMap().size() == tm.findAllTasks().size()));
 
