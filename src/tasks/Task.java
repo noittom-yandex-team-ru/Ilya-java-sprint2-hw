@@ -91,7 +91,7 @@ public class Task extends AbstractTask {
 
     @Override
     public String toString() {
-        return "Story{" +
+        return "Task{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", description.length='" + (description == null || description.isEmpty() ? 0
