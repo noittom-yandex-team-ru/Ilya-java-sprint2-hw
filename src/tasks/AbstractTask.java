@@ -2,7 +2,7 @@ package tasks;
 
 import tasks.enums.StateTask;
 
-abstract class AbstractTask {
+public abstract class AbstractTask {
     protected final String id;
     protected String name;
     protected String description;

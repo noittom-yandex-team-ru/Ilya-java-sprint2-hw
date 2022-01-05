@@ -1,5 +1,6 @@
 package managers;
 
+import tasks.AbstractTask;
 import tasks.Epic;
 import tasks.Story;
 import tasks.Task;
@@ -11,6 +12,8 @@ public class InMemoryTasksManager implements TasksManager {
 
     private final Map<String, Task> idTaskMap;
     private final Map<String, Epic> idEpicMap;
+
+    private final List<AbstractTask> tasksBuffer = new ArrayList<>(10);
 
     private InMemoryTasksManager(Map<String, Task> idTaskMap, Map<String, Epic> idEpicMap) {
         this.idTaskMap = Objects.requireNonNull(idTaskMap, "idTaskMap must not be null");
@@ -55,9 +58,22 @@ public class InMemoryTasksManager implements TasksManager {
     }
 
     @Override
+    public Story findStory(Epic epic, String id) {
+        if (epic != null) {
+            Story story = epic.getStory(id);
+            history(story);
+            return story;
+        }
+        return null;
+    }
+
+    @Override
     public Task findTask(String id) {
         for (Task task : idTaskMap.values()) {
-            if (id.equals(task.getId())) return task;
+            if (id.equals(task.getId())) {
+                history(task);
+                return task;
+            }
         }
         return null;
     }
@@ -65,7 +81,10 @@ public class InMemoryTasksManager implements TasksManager {
     @Override
     public Epic findEpic(String id) {
         for (Epic epic : idEpicMap.values()) {
-            if (id.equals(epic.getId())) return epic;
+            if (id.equals(epic.getId())) {
+                history(epic);
+                return epic;
+            }
         }
         return null;
     }
@@ -144,6 +163,22 @@ public class InMemoryTasksManager implements TasksManager {
     @Override
     public void deleteStories(String epicId) {
         idEpicMap.get(epicId).deleteAllStories();
+    }
+
+    public List<AbstractTask> getHistory() {
+        return tasksBuffer;
+    }
+
+    private void history(AbstractTask abstractTask) {
+        if (abstractTask != null) {
+            if (tasksBuffer.size() == 10) {
+                for (int i = 1; i < 10; i++) {
+                    tasksBuffer.set(i - 1, tasksBuffer.get(i));
+                }
+                tasksBuffer.remove(9);
+            }
+            tasksBuffer.add(abstractTask);
+        }
     }
 
     public Map<String, Task> getIdTaskMap() {

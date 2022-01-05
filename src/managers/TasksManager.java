@@ -23,6 +23,7 @@ public interface TasksManager {
     void deleteEpics();
 
     Collection<Story> findAllStories(String id);
+    Story findStory(Epic epic, String id);
     boolean addStory(Story story);
     boolean updateStory(Story story);
     void deleteStory(String id, Epic epic);
