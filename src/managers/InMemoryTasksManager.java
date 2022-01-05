@@ -7,13 +7,17 @@ import tasks.Task;
 
 import java.util.*;
 
-
 public class InMemoryTasksManager implements TasksManager {
 
     private final Map<String, Task> idTaskMap;
     private final Map<String, Epic> idEpicMap;
 
     private final List<AbstractTask> tasksBuffer = new ArrayList<>(10);
+
+    private InMemoryTasksManager() {
+        this.idTaskMap = new HashMap<>();
+        this.idEpicMap = new HashMap<>();
+    }
 
     private InMemoryTasksManager(Map<String, Task> idTaskMap, Map<String, Epic> idEpicMap) {
         this.idTaskMap = Objects.requireNonNull(idTaskMap, "idTaskMap must not be null");
@@ -31,6 +35,10 @@ public class InMemoryTasksManager implements TasksManager {
         for (Epic epic : epics) {
             idEpicMap.put(epic.getId(), epic);
         }
+    }
+
+    public static InMemoryTasksManager createTaskManager() {
+        return new InMemoryTasksManager();
     }
 
     public static InMemoryTasksManager createTaskManager(Map<String, Task> idTaskMap,
