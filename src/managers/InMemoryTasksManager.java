@@ -12,7 +12,7 @@ public class InMemoryTasksManager implements TasksManager {
     private final Map<String, Task> idTaskMap;
     private final Map<String, Epic> idEpicMap;
 
-    private final List<AbstractTask> tasksBuffer = new ArrayList<>(10);
+    private final List<AbstractTask> tasksBuffer = new LinkedList<>();
 
     private InMemoryTasksManager() {
         this.idTaskMap = new HashMap<>();
@@ -69,7 +69,7 @@ public class InMemoryTasksManager implements TasksManager {
     public Story findStory(Epic epic, String id) {
         if (epic != null) {
             Story story = epic.getStory(id);
-            history(story);
+            addToHistory(story);
             return story;
         }
         return null;
@@ -79,7 +79,7 @@ public class InMemoryTasksManager implements TasksManager {
     public Task findTask(String id) {
         for (Task task : idTaskMap.values()) {
             if (id.equals(task.getId())) {
-                history(task);
+                addToHistory(task);
                 return task;
             }
         }
@@ -90,7 +90,7 @@ public class InMemoryTasksManager implements TasksManager {
     public Epic findEpic(String id) {
         for (Epic epic : idEpicMap.values()) {
             if (id.equals(epic.getId())) {
-                history(epic);
+                addToHistory(epic);
                 return epic;
             }
         }
@@ -177,13 +177,12 @@ public class InMemoryTasksManager implements TasksManager {
         return tasksBuffer;
     }
 
-    private void history(AbstractTask abstractTask) {
+    private void addToHistory(AbstractTask abstractTask) {
         if (abstractTask != null) {
             if (tasksBuffer.size() == 10) {
-                for (int i = 1; i < 10; i++) {
-                    tasksBuffer.set(i - 1, tasksBuffer.get(i));
-                }
-                tasksBuffer.remove(9);
+                tasksBuffer.remove(0);
+                tasksBuffer.add(abstractTask);
+                return;
             }
             tasksBuffer.add(abstractTask);
         }
