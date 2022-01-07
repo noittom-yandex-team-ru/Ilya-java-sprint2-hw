@@ -9,22 +9,22 @@ import java.util.*;
 
 public class InMemoryTasksManager implements TasksManager {
 
-    private final Map<String, Task> idTaskMap;
-    private final Map<String, Epic> idEpicMap;
+    private Map<String, Task> idTaskMap;
+    private Map<String, Epic> idEpicMap;
 
     private final List<AbstractTask> tasksBuffer = new LinkedList<>();
 
-    private InMemoryTasksManager() {
+    public InMemoryTasksManager() {
         this.idTaskMap = new HashMap<>();
         this.idEpicMap = new HashMap<>();
     }
 
-    private InMemoryTasksManager(Map<String, Task> idTaskMap, Map<String, Epic> idEpicMap) {
+    public InMemoryTasksManager(Map<String, Task> idTaskMap, Map<String, Epic> idEpicMap) {
         this.idTaskMap = Objects.requireNonNull(idTaskMap, "idTaskMap must not be null");
         this.idEpicMap = Objects.requireNonNull(idEpicMap, "idEpicMap must not be null");
     }
 
-    private InMemoryTasksManager(List<Task> tasks, List<Epic> epics) {
+    public InMemoryTasksManager(List<Task> tasks, List<Epic> epics) {
         Objects.requireNonNull(tasks, "tasks must not be null");
         Objects.requireNonNull(epics, "epics must not be null");
         idTaskMap = new HashMap<>();
@@ -37,18 +37,6 @@ public class InMemoryTasksManager implements TasksManager {
         }
     }
 
-    public static InMemoryTasksManager createTaskManager() {
-        return new InMemoryTasksManager();
-    }
-
-    public static InMemoryTasksManager createTaskManager(Map<String, Task> idTaskMap,
-                                                         Map<String, Epic> idEpicMap) {
-        return new InMemoryTasksManager(idTaskMap, idEpicMap);
-    }
-
-    public static InMemoryTasksManager createTaskManager(List<Task> tasks, List<Epic> epics) {
-        return new InMemoryTasksManager(tasks, epics);
-    }
 
     @Override
     public Collection<Task> findAllTasks() {
@@ -194,5 +182,25 @@ public class InMemoryTasksManager implements TasksManager {
 
     public Map<String, Epic> getIdEpicMap() {
         return idEpicMap;
+    }
+
+    public void setIdTaskMap(Map<String, Task> idTaskMap) {
+        this.idTaskMap = idTaskMap;
+    }
+
+    public void setIdTaskMap(List<Task> tasks) {
+        for (Task task : tasks) {
+            idTaskMap.put(task.getId(), task);
+        }
+    }
+
+    public void setIdEpicMap(Map<String, Epic> idEpicMap) {
+        this.idEpicMap = idEpicMap;
+    }
+
+    public void setIdEpicMap(List<Epic> epics) {
+        for (Epic epic : epics) {
+            idEpicMap.put(epic.getId(), epic);
+        }
     }
 }

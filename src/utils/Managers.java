@@ -5,6 +5,6 @@ import managers.TasksManager;
 
 public class Managers {
     public static TasksManager getDefault() {
-        return InMemoryTasksManager.createTaskManager();
+        return new InMemoryTasksManager();
     }
 }

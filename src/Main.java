@@ -3,6 +3,7 @@ import tasks.Epic;
 import tasks.Story;
 import tasks.Task;
 import tasks.enums.StateTask;
+import utils.Managers;
 
 import java.util.List;
 
@@ -71,7 +72,10 @@ public class Main {
                 Task.createTask(TASK_ID_5, "Task5")
         );
 
-        InMemoryTasksManager tm = InMemoryTasksManager.createTaskManager(tasks, epics);
+        InMemoryTasksManager tm = (InMemoryTasksManager) Managers.getDefault();
+        tm.setIdEpicMap(epics);
+        tm.setIdTaskMap(tasks);
+
         System.out.println("Тест №6: " + (tm.getIdEpicMap().size() == tm.findAllEpics().size()
                 && tm.getIdTaskMap().size() == tm.findAllTasks().size()));
 
@@ -137,7 +141,6 @@ public class Main {
             tm.findStory(epic2, STORY_ID_1111);
         }
 
-        // tm.getHistory().forEach(System.out::println); uncomment it to make sure that everything works as expected
         System.out.println("Тест №23: " + (tm.getHistory().size() == 10));
     }
 }
