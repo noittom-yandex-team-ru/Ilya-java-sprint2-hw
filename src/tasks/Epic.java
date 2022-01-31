@@ -2,21 +2,29 @@ package tasks;
 
 import tasks.enums.StateTask;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 
 public final class Epic extends AbstractTask {
-    private Collection<Story> stories;
+    private final Map<Long, Story> stories;
 
     public static class Builder {
-        private final String id;
-        private final String name;
+        private long id;
+        private String name;
         private String description;
 
-        public Builder(String id, String name) {
-            this.id = Objects.requireNonNull(id, "id must not be null");
+        public Builder(long id, String name) {
+            this.id = id;
             this.name = Objects.requireNonNull(name, "name must not be null");
+        }
+
+        Builder id(long id) {
+            this.id = id;
+            return this;
+        }
+
+        Builder name(String name) {
+            this.name = name;
+            return this;
         }
 
         public Builder description(String description) {
@@ -31,51 +39,63 @@ public final class Epic extends AbstractTask {
 
     private Epic(Builder builder) {
         super(builder.id, builder.name, builder.description);
-        this.stories = new ArrayList<>();
+        this.stories = new LinkedHashMap<>();
     }
 
-    public static Epic createEpic(String id, String name) {
+    public static Epic createEpic(long id, Epic epic) {
+        return createEpic(id, epic.name, epic.description, epic.getStories());
+    }
+
+    public static Epic createEpic(String name) {
+        return createEpic(name, "");
+    }
+
+    public static Epic createEpic(String name, String description) {
+        return new Builder(0, name).build();
+    }
+
+    public static Epic createEpic(long id, String name) {
         return new Builder(id, name).build();
     }
 
-    public static Epic createEpic(String id, String name, String description) {
+    public static Epic createEpic(long id, String name, String description) {
         return new Builder(id, name).description(description).build();
     }
 
-    public Story getStory(String id) {
-        for (Story story : stories) {
-            if (id.equals(story.getId())) {
-                return story;
-            }
-        }
-        return null;
+    public static Epic createEpic(long id, String name, String description, Collection<Story> stories) {
+        Epic epic = new Builder(id, name).description(description).build();
+        epic.setStories(stories);
+        return epic;
     }
 
-    public boolean addStory(Story story) {
-        if (this.equals(story.getEpic()) && stories.add(story)) {
+    public Story getStory(long id) {
+        return stories.get(id);
+    }
+
+    public Story addStory(Story story) {
+        if (this.id == story.getEpic().getId()) {
+            stories.put(story.getId(), story);
             checkState();
-            return true;
         }
-        return false;
+        return story;
     }
 
-    public boolean deleteStory(String id) {
-        for (Story story : stories) {
-            if (id.equals(story.getId())) {
-                stories.remove(story);
-                checkState();
-                return true;
-            }
-        }
-        return false;
+    public Story updateStory(long id, Story story) {
+        return stories.get(id).setStory(story);
     }
 
-    public void deleteAllStories() {
+    public Story removeStory(long id) {
+        Story story = stories.remove(id);
+        if (story != null) checkState();
+        return story;
+    }
+
+    public void removeAllStories() {
         stories.clear();
-        checkState();
+        stateTask = StateTask.NEW;
     }
 
-    public String getId() {
+    public long getId() {
         return id;
     }
 
@@ -88,7 +108,7 @@ public final class Epic extends AbstractTask {
     }
 
     public Collection<Story> getStories() {
-        return stories;
+        return stories.values();
     }
 
     public void setName(String name) {
@@ -107,37 +127,36 @@ public final class Epic extends AbstractTask {
             }
         }
         if (counterThisEpic == stories.size()) {
-            this.stories = stories;
+            this.stories.clear();
+            for (Story story : stories) {
+                this.stories.put(story.getId(), story);
+            }
             checkState();
         }
     }
 
-    public boolean setEpic(Epic epic) {
-        if (epic != null && id.equals(epic.getId())) {
+    public Epic setEpic(Epic epic) {
+        if (epic != null) {
             setName(epic.name);
             setDescription(epic.description);
-            setStories(epic.stories);
+            setStories(epic.stories.values());
             checkState();
-            return true;
         }
-        return false;
+        return this;
     }
 
-    public boolean setStatusStory(String id, StateTask stateTask) {
-        for (Story story : stories) {
-            if (id.equals(story.getId())) {
-                story.setStateTask(stateTask);
-                checkState();
-                return true;
-            }
+    public void setStatusStory(long id, StateTask stateTask) {
+        Story story = stories.get(id);
+        if (id == story.getId()) {
+            story.setStateTask(stateTask);
+            checkState();
         }
-        return false;
     }
 
     private void checkState() {
         int counterNewStatusStories = 0;
         int counterDoneStatusStories = 0;
-        for (Story story : stories) {
+        for (Story story : stories.values()) {
             if (StateTask.NEW.equals(story.stateTask)) counterNewStatusStories++;
             if (StateTask.DONE.equals(story.stateTask)) counterDoneStatusStories++;
         }
@@ -156,12 +175,12 @@ public final class Epic extends AbstractTask {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Epic epic = (Epic) o;
-        return id.equals(epic.id) && name.equals(epic.name) && stories.equals(epic.stories);
+        return id == epic.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name) * 31 + stories.hashCode();
+        return Objects.hash(id);
     }
 
     @Override

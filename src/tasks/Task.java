@@ -7,13 +7,23 @@ import java.util.Objects;
 public class Task extends AbstractTask {
 
     public static class Builder {
-        private final String id;
-        private final String name;
+        private long id;
+        private String name;
         private String description;
 
-        Builder(String id, String name) {
-            this.id = Objects.requireNonNull(id, "id must not be null");
+        Builder(long id, String name) {
+            this.id = id;
             this.name = Objects.requireNonNull(name, "name must not be null");
+        }
+
+        Builder id(long id) {
+            this.id = id;
+            return this;
+        }
+
+        Builder name(String name) {
+            this.name = name;
+            return this;
         }
 
         Builder description(String description) {
@@ -30,24 +40,35 @@ public class Task extends AbstractTask {
         super(builder.id, builder.name, builder.description);
     }
 
-    public static Task createTask(String id, String name) {
+    public static Task createTask(long id, Task task) {
+        return new Builder(id, task.name).description(task.description).build();
+    }
+
+    public static Task createTask(String name, String description) {
+        return createTask(0, name, description);
+    }
+
+    public static Task createTask(String name) {
+        return createTask(name, "");
+    }
+
+    public static Task createTask(long id, String name) {
         return new Builder(id, name).build();
     }
 
-    public static Task createTask(String id, String name, String description) {
+    public static Task createTask(long id, String name, String description) {
         return new Builder(id, name).description(description).build();
     }
 
-    public boolean setTask(Task task) {
-        if (id.equals(task.getId())) {
-            this.name = task.name;
-            this.description = task.description;
-            return true;
+    public Task setTask(Task task) {
+        if (task != null) {
+            setName(task.name);
+            setDescription(task.description);
         }
-        return false;
+        return this;
     }
 
-    public String getId() {
+    public long getId() {
         return id;
     }
 
@@ -81,12 +102,12 @@ public class Task extends AbstractTask {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return id.equals(task.id) && name.equals(task.name);
+        return id == task.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name);
+        return Objects.hash(id);
     }
 
     @Override

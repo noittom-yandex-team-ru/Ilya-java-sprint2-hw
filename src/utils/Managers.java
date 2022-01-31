@@ -1,10 +1,11 @@
 package utils;
 
-import managers.InMemoryTasksManager;
-import managers.TasksManager;
+
+import managers.AppManager;
+import managers.InMemoryAppManager;
 
 public class Managers {
-    public static TasksManager getDefault() {
-        return new InMemoryTasksManager();
+    public static AppManager getDefault() {
+        return new InMemoryAppManager();
     }
 }

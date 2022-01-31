@@ -5,17 +5,21 @@ import tasks.enums.StateTask;
 import java.util.Objects;
 
 public final class Story extends AbstractTask {
-
     private Epic epic;
 
     public static class Builder {
-        private final String id;
+        private long id;
         private final String name;
         private final Epic epic;
         private String description;
 
-        Builder(String id, String name, Epic epic) {
-            this.id = Objects.requireNonNull(id, "id must not be null");
+        Builder(String name, Epic epic) {
+            this.name = Objects.requireNonNull(name, "name must not be null");
+            this.epic = Objects.requireNonNull(epic, "epic must not be null");
+        }
+
+        Builder(long id, String name, Epic epic) {
+            this.id = id;
             this.name = Objects.requireNonNull(name, "name must not be null");
             this.epic = Objects.requireNonNull(epic, "epic must not be null");
         }
@@ -36,29 +40,40 @@ public final class Story extends AbstractTask {
         this.epic = builder.epic;
     }
 
-    public static Story createStory(String id, String name, Epic epic) {
+    public static Story createStory(String name, Epic epic) {
+        return new Builder(name, epic).build();
+    }
+
+    public static Story createStory(String name, String description, Epic epic) {
+        return createStory(0, name, description, epic);
+    }
+
+    public static Story createStory(long id, Story story) {
+        return new Builder(id, story.name, story.epic).build();
+    }
+
+    public static Story createStory(long id, String name, Epic epic) {
         return new Builder(id, name, epic).build();
     }
 
-    public static Story createStory(String id, String name, String description, Epic epic) {
+    public static Story createStory(long id, String name, String description, Epic epic) {
         return new Builder(id, name, epic).description(description).build();
     }
 
-    public boolean setStory(Story story) {
-        if (story != null && id.equals(story.getId())) {
+    public Story setStory(Story story) {
+        if (story != null) {
             setName(story.name);
             setDescription(story.description);
             setEpic(story.epic);
-            return true;
         }
-        return false;
+        return this;
     }
 
     void setStateTask(StateTask stateTask) {
         this.stateTask = stateTask;
     }
 
-    public String getId() {
+    public long getId() {
         return id;
     }
 
@@ -91,12 +106,12 @@ public final class Story extends AbstractTask {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Story story = (Story) o;
-        return id.equals(story.id) && name.equals(story.name) && epic.equals(story.epic);
+        return id == story.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, epic);
+        return Objects.hash(id);
     }
 
     @Override
