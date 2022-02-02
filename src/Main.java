@@ -101,16 +101,25 @@ public class Main {
         epic1.setStatusStory(19, StateTask.NEW);
         System.out.println(("Тест №15: " + StateTask.NEW.equals(epic1.getStateTask())));
 
+
+        System.out.println("Тест №16: ");
+        System.out.println("Before deletion: ");
         for (int i = 0; i < 9; i++) {
             appManager.findStory(19);
         }
-        appManager.findEpic(1);
+        appManager.findEpic(3);
+        appManager.findTask(26);
+        appManager.getHistoryManager().getHistory().forEach(System.out::println);
 
-        System.out.println("Тест №16: ");
+        appManager.deleteStory(19);
+        appManager.deleteTask(26);
+        appManager.deleteEpic(3);
+
+        System.out.println("\nAfter deletion: ");
         appManager.getHistoryManager().getHistory().forEach(System.out::println);
 
         appManager.deleteTask(22);
-        System.out.println(("Тест №17: " + (appManager.getTasksRepository().size() == 5)));
+        System.out.println(("Тест №17: " + (appManager.getTasksRepository().size() == 4)));
 
         appManager.deleteAllTasks();
         System.out.println(("Тест №18: " + appManager.findAllTasks().isEmpty()));

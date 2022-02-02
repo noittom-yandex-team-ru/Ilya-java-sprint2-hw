@@ -62,6 +62,7 @@ public class InMemoryAppManager implements AppManager {
 
     @Override
     public Task deleteTask(long id) {
+        historyManager.remove(id);
         return tasksRepository.delete(id);
     }
 
@@ -94,7 +95,14 @@ public class InMemoryAppManager implements AppManager {
 
     @Override
     public Epic deleteEpic(long id) {
-        return epicsRepository.delete(id);
+        Epic epic = epicsRepository.delete(id);
+        if (epic != null) {
+            for (Story story : epic.getStories()) {
+                historyManager.remove(story.getId());
+            }
+            historyManager.remove(id);
+        }
+        return epic;
     }
 
     @Override
@@ -126,6 +134,7 @@ public class InMemoryAppManager implements AppManager {
 
     @Override
     public Story deleteStory(long id) {
+        historyManager.remove(id);
         return epicsRepository.deleteStory(id);
     }
 
