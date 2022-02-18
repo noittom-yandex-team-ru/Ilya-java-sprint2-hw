@@ -2,10 +2,10 @@ import managers.AppManager;
 import managers.InMemoryAppManager;
 import repositories.tasks.EpicsRepository;
 import repositories.tasks.TasksRepositoryImpl;
-import tasks.Epic;
-import tasks.Story;
-import tasks.Task;
-import tasks.enums.StateTask;
+import models.tasks.Epic;
+import models.tasks.Story;
+import models.tasks.Task;
+import models.enums.StateTask;
 import utils.Managers;
 
 import java.util.List;

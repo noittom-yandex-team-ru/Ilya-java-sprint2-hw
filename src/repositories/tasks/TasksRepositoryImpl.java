@@ -1,6 +1,6 @@
 package repositories.tasks;
 
-import tasks.Task;
+import models.tasks.Task;
 
 import java.util.*;
 

@@ -1,6 +1,6 @@
-package tasks;
+package models.tasks;
 
-import tasks.enums.StateTask;
+import models.enums.StateTask;
 
 public abstract class AbstractTask {
     protected final long id;

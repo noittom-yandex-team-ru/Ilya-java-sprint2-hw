@@ -1,4 +1,4 @@
-package tasks.enums;
+package models.enums;
 
 public enum StateTask {
     NEW("NEW_STATE", "This state describes a newly created entity"),

@@ -1,7 +1,7 @@
 package repositories.tasks;
 
-import tasks.Epic;
-import tasks.Story;
+import models.tasks.Epic;
+import models.tasks.Story;
 
 import java.util.*;
 

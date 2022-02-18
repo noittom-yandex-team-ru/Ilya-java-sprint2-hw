@@ -3,9 +3,9 @@ package managers;
 import managers.history.InMemoryHistoryManager;
 import repositories.tasks.EpicsRepository;
 import repositories.tasks.TasksRepositoryImpl;
-import tasks.Epic;
-import tasks.Story;
-import tasks.Task;
+import models.tasks.Epic;
+import models.tasks.Story;
+import models.tasks.Task;
 
 import java.util.Collection;
 import java.util.Objects;

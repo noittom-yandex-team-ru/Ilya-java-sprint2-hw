@@ -1,6 +1,6 @@
 package repositories.tasks;
 
-import tasks.AbstractTask;
+import models.tasks.AbstractTask;
 
 import java.util.Collection;
 

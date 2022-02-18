@@ -1,6 +1,6 @@
-package tasks;
+package models.tasks;
 
-import tasks.enums.StateTask;
+import models.enums.StateTask;
 
 import java.util.*;
 
