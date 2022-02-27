@@ -1,6 +1,7 @@
 package models.tasks;
 
 import models.enums.StateTask;
+import models.enums.TypeTask;
 
 import java.util.Objects;
 
@@ -12,6 +13,7 @@ public final class Story extends AbstractTask {
         private final String name;
         private final Epic epic;
         private String description;
+        private StateTask stateTask;
 
         Builder(String name, Epic epic) {
             this.name = Objects.requireNonNull(name, "name must not be null");
@@ -29,6 +31,11 @@ public final class Story extends AbstractTask {
             return this;
         }
 
+        Builder stateTask(StateTask stateTask) {
+            this.stateTask = stateTask;
+            return this;
+        }
+
         Story build() {
             return new Story(this);
         }
@@ -36,7 +43,7 @@ public final class Story extends AbstractTask {
 
 
     private Story(Builder builder) {
-        super(builder.id, builder.name, builder.description);
+        super(builder.id, builder.name, builder.description, TypeTask.STORY, builder.stateTask);
         this.epic = builder.epic;
     }
 
@@ -58,6 +65,10 @@ public final class Story extends AbstractTask {
 
     public static Story createStory(long id, String name, String description, Epic epic) {
         return new Builder(id, name, epic).description(description).build();
+    }
+
+    public static Story createStory(long id, String name, String description, Epic epic, StateTask stateTask) {
+        return new Builder(id, name, epic).description(description).stateTask(stateTask).build();
     }
 
     public Story setStory(Story story) {

@@ -14,7 +14,7 @@ public class InMemoryAppManager implements AppManager {
 
     private TasksRepositoryImpl tasksRepository;
     private EpicsRepository epicsRepository;
-    private InMemoryHistoryManager historyManager;
+    protected InMemoryHistoryManager historyManager;
 
     public InMemoryAppManager() {
         tasksRepository = new TasksRepositoryImpl();

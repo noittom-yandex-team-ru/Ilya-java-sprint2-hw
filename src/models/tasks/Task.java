@@ -1,15 +1,18 @@
 package models.tasks;
 
 import models.enums.StateTask;
+import models.enums.TypeTask;
 
 import java.util.Objects;
 
 public class Task extends AbstractTask {
 
+
     public static class Builder {
         private long id;
         private String name;
         private String description;
+        private StateTask stateTask;
 
         Builder(long id, String name) {
             this.id = id;
@@ -31,13 +34,18 @@ public class Task extends AbstractTask {
             return this;
         }
 
+        Builder stateTask(StateTask stateTask) {
+            this.stateTask = stateTask;
+            return this;
+        }
+
         Task build() {
             return new Task(this);
         }
     }
 
     private Task(Builder builder) {
-        super(builder.id, builder.name, builder.description);
+        super(builder.id, builder.name, builder.description, TypeTask.TASK, builder.stateTask);
     }
 
     public static Task createTask(long id, Task task) {
@@ -58,6 +66,10 @@ public class Task extends AbstractTask {
 
     public static Task createTask(long id, String name, String description) {
         return new Builder(id, name).description(description).build();
+    }
+
+    public static Task createTask(long id, String name, StateTask stateTask, String description) {
+        return new Builder(id, name).description(description).stateTask(stateTask).build();
     }
 
     public Task setTask(Task task) {

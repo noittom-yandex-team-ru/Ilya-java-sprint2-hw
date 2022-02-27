@@ -58,4 +58,12 @@ public class TasksRepositoryImpl extends AbstractTasksRepository<Task> {
     public int size() {
         return idTaskMap.size();
     }
+
+    public Map<Long, Task> getIdTaskMap() {
+        return idTaskMap;
+    }
+
+    public boolean isEmpty() {
+        return idTaskMap.isEmpty();
+    }
 }

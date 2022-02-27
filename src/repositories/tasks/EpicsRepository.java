@@ -6,6 +6,7 @@ import models.tasks.Story;
 import java.util.*;
 
 public class EpicsRepository extends AbstractTasksRepository<Epic> {
+
     private final Map<Long, Epic> idEpicMap;
 
     public EpicsRepository() {
@@ -113,5 +114,13 @@ public class EpicsRepository extends AbstractTasksRepository<Epic> {
 
     public void clearStories(Epic epic) {
         idEpicMap.get(epic.getId()).removeAllStories();
+    }
+
+    public Map<Long, Epic> getIdEpicMap() {
+        return idEpicMap;
+    }
+
+    public boolean isEmpty() {
+        return idEpicMap.isEmpty();
     }
 }

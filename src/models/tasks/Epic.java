@@ -1,16 +1,18 @@
 package models.tasks;
 
 import models.enums.StateTask;
+import models.enums.TypeTask;
 
 import java.util.*;
 
 public final class Epic extends AbstractTask {
-    private final Map<Long, Story> stories;
+    private final Map<Long, Story> idStoryMap;
 
     public static class Builder {
         private long id;
         private String name;
         private String description;
+        private StateTask stateTask;
 
         public Builder(long id, String name) {
             this.id = id;
@@ -32,14 +34,19 @@ public final class Epic extends AbstractTask {
             return this;
         }
 
+        Builder stateTask(StateTask stateTask) {
+            this.stateTask = stateTask;
+            return this;
+        }
+
         public Epic build() {
             return new Epic(this);
         }
     }
 
     private Epic(Builder builder) {
-        super(builder.id, builder.name, builder.description);
-        this.stories = new LinkedHashMap<>();
+        super(builder.id, builder.name, builder.description, TypeTask.EPIC, builder.stateTask);
+        this.idStoryMap = new LinkedHashMap<>();
     }
 
     public static Epic createEpic(long id, Epic epic) {
@@ -64,34 +71,38 @@ public final class Epic extends AbstractTask {
 
     public static Epic createEpic(long id, String name, String description, Collection<Story> stories) {
         Epic epic = new Builder(id, name).description(description).build();
-        epic.setStories(stories);
+        epic.setIdStoryMap(stories);
         return epic;
     }
 
+    public static Epic createEpic(long id, String name, StateTask stateTask, String description) {
+        return new Epic.Builder(id, name).description(description).stateTask(stateTask).build();
+    }
+
     public Story getStory(long id) {
-        return stories.get(id);
+        return idStoryMap.get(id);
     }
 
     public Story addStory(Story story) {
         if (this.id == story.getEpic().getId()) {
-            stories.put(story.getId(), story);
+            idStoryMap.put(story.getId(), story);
             checkState();
         }
         return story;
     }
 
     public Story updateStory(long id, Story story) {
-        return stories.get(id).setStory(story);
+        return idStoryMap.get(id).setStory(story);
     }
 
     public Story removeStory(long id) {
-        Story story = stories.remove(id);
+        Story story = idStoryMap.remove(id);
         if (story != null) checkState();
         return story;
     }
 
     public void removeAllStories() {
-        stories.clear();
+        idStoryMap.clear();
         stateTask = StateTask.NEW;
     }
 
@@ -108,7 +119,11 @@ public final class Epic extends AbstractTask {
     }
 
     public Collection<Story> getStories() {
-        return stories.values();
+        return idStoryMap.values();
+    }
+
+    public Map<Long, Story> getIdStoryMap() {
+        return idStoryMap;
     }
 
     public void setName(String name) {
@@ -119,17 +134,17 @@ public final class Epic extends AbstractTask {
         super.setDescription(description);
     }
 
-    public void setStories(Collection<Story> stories) {
+    public void setIdStoryMap(Collection<Story> idStoryMap) {
         int counterThisEpic = 0;
-        for (Story story : stories) {
+        for (Story story : idStoryMap) {
             if (this.equals(story.getEpic())) {
                 counterThisEpic++;
             }
         }
-        if (counterThisEpic == stories.size()) {
-            this.stories.clear();
-            for (Story story : stories) {
-                this.stories.put(story.getId(), story);
+        if (counterThisEpic == idStoryMap.size()) {
+            this.idStoryMap.clear();
+            for (Story story : idStoryMap) {
+                this.idStoryMap.put(story.getId(), story);
             }
             checkState();
         }
@@ -139,14 +154,14 @@ public final class Epic extends AbstractTask {
         if (epic != null) {
             setName(epic.name);
             setDescription(epic.description);
-            setStories(epic.stories.values());
+            setIdStoryMap(epic.idStoryMap.values());
             checkState();
         }
         return this;
     }
 
     public void setStatusStory(long id, StateTask stateTask) {
-        Story story = stories.get(id);
+        Story story = idStoryMap.get(id);
         if (id == story.getId()) {
             story.setStateTask(stateTask);
             checkState();
@@ -156,11 +171,11 @@ public final class Epic extends AbstractTask {
     private void checkState() {
         int counterNewStatusStories = 0;
         int counterDoneStatusStories = 0;
-        for (Story story : stories.values()) {
+        for (Story story : idStoryMap.values()) {
             if (StateTask.NEW.equals(story.stateTask)) counterNewStatusStories++;
             if (StateTask.DONE.equals(story.stateTask)) counterDoneStatusStories++;
         }
-        int storiesListLength = stories.size();
+        int storiesListLength = idStoryMap.size();
         if (counterNewStatusStories == storiesListLength) {
             stateTask = StateTask.NEW;
         } else if (counterDoneStatusStories == storiesListLength) {
@@ -191,7 +206,7 @@ public final class Epic extends AbstractTask {
                 ", description.length='" + (description == null || description.isEmpty() ? 0
                 : description.length()) + '\'' +
                 ", stateTask=" + stateTask +
-                ", stories.size=" + stories.size() +
+                ", stories.size=" + idStoryMap.size() +
                 '}';
     }
 }

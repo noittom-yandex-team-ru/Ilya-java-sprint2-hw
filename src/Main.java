@@ -1,13 +1,13 @@
 import managers.AppManager;
-import managers.InMemoryAppManager;
-import repositories.tasks.EpicsRepository;
-import repositories.tasks.TasksRepositoryImpl;
+import managers.FileBackedAppManager;
+import models.enums.StateTask;
 import models.tasks.Epic;
 import models.tasks.Story;
 import models.tasks.Task;
-import models.enums.StateTask;
-import utils.Managers;
+import repositories.tasks.EpicsRepository;
+import repositories.tasks.TasksRepositoryImpl;
 
+import java.nio.file.Path;
 import java.util.List;
 
 public class Main {
@@ -17,22 +17,27 @@ public class Main {
 
     public static void main(String[] args) {
 
-        InMemoryAppManager appManager = (InMemoryAppManager) Managers.getDefault();
+        //  InMemoryAppManager appManager = (InMemoryAppManager) Managers.getDefault();
+        FileBackedAppManager appManager = new   FileBackedAppManager(Path.of("temp.csv"));
+
         appManager.createEpicsRepository(List.of(
                 Epic.createEpic("Epic1", "First epic"),
                 Epic.createEpic("Epic2"),
                 Epic.createEpic("Epic3")
-        )); id_counter += 3;
-
+        ));
+        id_counter += 3;
 
 
         Epic epic1 = appManager.findEpic(1);
         Epic epic2 = appManager.findEpic(2);
         Epic epic3 = appManager.findEpic(3);
 
-        fillInStories(appManager, epic1, NUMBER_TASKS); id_counter += 5;
-        fillInStories(appManager, epic2, NUMBER_TASKS); id_counter += 5;
-        fillInStories(appManager, epic3, NUMBER_TASKS); id_counter += 5;
+        fillInStories(appManager, epic1, NUMBER_TASKS);
+        id_counter += 5;
+        fillInStories(appManager, epic2, NUMBER_TASKS);
+        id_counter += 5;
+        fillInStories(appManager, epic3, NUMBER_TASKS);
+        id_counter += 5;
 
         System.out.println("Тест №1: " + (epic1.getStories().size() == epic2.getStories().size()
                 && epic2.getStories().size() == epic3.getStories().size()));
@@ -48,7 +53,8 @@ public class Main {
         appManager.deleteAllStories(epic1);
         System.out.println("Тест №3: " + (epic1.getStories().size() == 0));
 
-        appManager.addStory(Story.createStory("Homo", epic1)); id_counter++;
+        appManager.addStory(Story.createStory("Homo", epic1));
+        id_counter++;
         System.out.println("Тест №4: " + (epic1.getStories().size() == 1));
 
         appManager.deleteStory(10);
@@ -65,7 +71,8 @@ public class Main {
                 Task.createTask("Task3"),
                 Task.createTask("Task4"),
                 Task.createTask("Task5")
-        )); id_counter += 5;
+        ));
+        id_counter += 5;
 
         EpicsRepository epicsRepository = appManager.getEpicsRepository();
         TasksRepositoryImpl tasksRepository = appManager.getTasksRepository();
@@ -73,18 +80,20 @@ public class Main {
         System.out.println("Тест №7: " + (epicsRepository.size() == epicsRepository.findAll().size()
                 && tasksRepository.size() == tasksRepository.findAll().size()));
 
-        Epic newEpic = Epic.createEpic(id_counter + 1,"Epic4");
-        appManager.addEpic(newEpic); id_counter++;
+        Epic newEpic = Epic.createEpic(id_counter + 1, "Epic4");
+        appManager.addEpic(newEpic);
+        id_counter++;
         System.out.println("Тест №8: " + (appManager.findAllEpics().size() == 4));
 
         appManager.updateEpic(id_counter, Epic.createEpic("NEW_EPIC", "DESCRIPTION FOR EPIC!"));
         System.out.println("Тест №9: " + newEpic.equals(appManager.findEpic(newEpic.getId())));
 
         appManager.deleteEpic(id_counter);
-        System.out.println("Тест №10: " +(appManager.findAllEpics().size() == 3));
+        System.out.println("Тест №10: " + (appManager.findAllEpics().size() == 3));
 
         Task newTask = Task.createTask("NEW_TASK", "DESCRIPTION FOR TASK!");
-        appManager.addTask(newTask); id_counter++;
+        appManager.addTask(newTask);
+        id_counter++;
         System.out.println("Тест №11: " + (appManager.findAllTasks().size() == 6));
 
         newTask.setName("KILL_TASK");
@@ -95,7 +104,8 @@ public class Main {
         epic1.setStatusStory(19, StateTask.DONE);
         System.out.println(("Тест №13: " + StateTask.DONE.equals(epic1.getStateTask())));
 
-        appManager.addStory(Story.createStory("ANOTHER_STORY", epic1)); id_counter++;
+        appManager.addStory(Story.createStory("ANOTHER_STORY", epic1));
+        id_counter++;
         System.out.println(("Тест №14: " + StateTask.IN_PROGRESS.equals(epic1.getStateTask())));
 
         epic1.setStatusStory(19, StateTask.NEW);
@@ -130,7 +140,16 @@ public class Main {
         appManager.deleteAllTasks();
         System.out.println(("Тест №20: " + appManager.findAllTasks().isEmpty()));
 
+        System.out.println("Тест №21: " + (appManager.getEpicsRepository().size() == 2));
 
+        System.out.println("Тест №22: " + appManager.getTasksRepository().isEmpty());
+
+        System.out.println("Тест №23: " + appManager.findAllStories(appManager.findEpic(1)).isEmpty());
+
+        appManager.findStory(13);
+        appManager.findStory(12);
+
+        System.out.println("Тест №24: " + (appManager.getHistoryManager().getHistory().size() == 4));
     }
 
     public static void fillInStories(AppManager manager, Epic epic, int number) {
@@ -138,4 +157,5 @@ public class Main {
             manager.addStory(Story.createStory("Story" + (i + 1), epic));
         }
     }
+
 }
