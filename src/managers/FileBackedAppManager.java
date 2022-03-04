@@ -20,17 +20,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class FileBackedAppManager extends InMemoryAppManager implements AppManager {
+public class FileBackedAppManager extends InMemoryAppManager {
     private final Path path;
     private CombinedTasksRepository combinedTasksRepository;
 
-    public FileBackedAppManager(Path path) {
+    private FileBackedAppManager(Path path) {
         super();
         this.path = path;
-        loadFromFile();
     }
 
-    public void saveTasks() {
+    public static FileBackedAppManager getInstance(Path path) {
+        FileBackedAppManager fileBackedAppManager = new FileBackedAppManager(path);
+        fileBackedAppManager.load();
+        return fileBackedAppManager;
+    }
+
+    public void save() {
         final String HEADER = "id,type,name,status,description,epic";
         combinedTasksRepository = CombinedTasksRepository.getInstance(getEpicsRepository(), getTasksRepository());
         try (BufferedWriter fileWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
@@ -47,7 +52,7 @@ public class FileBackedAppManager extends InMemoryAppManager implements AppManag
         }
     }
 
-    public void loadFromFile() {
+    public void load() {
         List<String> lines;
         try {
             lines = Files.readAllLines(Files.createFile(path));
@@ -82,115 +87,115 @@ public class FileBackedAppManager extends InMemoryAppManager implements AppManag
     @Override
     public void createTasksRepository(Collection<Task> tasks) {
         super.createTasksRepository(tasks);
-        saveTasks();
+        save();
     }
 
     @Override
     public void createEpicsRepository(Collection<Epic> epics) {
         super.createEpicsRepository(epics);
-        saveTasks();
+        save();
     }
 
     @Override
     public Task findTask(long id) {
         Task task = super.findTask(id);
-        saveTasks();
+        save();
         return task;
     }
 
     @Override
     public Task addTask(Task task) {
         Task result = super.addTask(task);
-        saveTasks();
+        save();
         return result;
     }
 
     @Override
     public Task updateTask(long id, Task task) {
         Task result = super.updateTask(id, task);
-        saveTasks();
+        save();
         return result;
     }
 
     @Override
     public Task deleteTask(long id) {
         Task task = super.deleteTask(id);
-        saveTasks();
+        save();
         return task;
     }
 
     @Override
     public void deleteAllTasks() {
         super.deleteAllTasks();
-        saveTasks();
+        save();
     }
 
     @Override
     public Epic findEpic(long id) {
         Epic epic = super.findEpic(id);
-        saveTasks();
+        save();
         return epic;
     }
 
     @Override
     public Epic addEpic(Epic epic) {
         Epic result = super.addEpic(epic);
-        saveTasks();
+        save();
         return result;
     }
 
     @Override
     public Epic updateEpic(long id, Epic epic) {
         Epic result = super.updateEpic(id, epic);
-        saveTasks();
+        save();
         return result;
     }
 
     @Override
     public Epic deleteEpic(long id) {
         Epic result = super.deleteEpic(id);
-        saveTasks();
+        save();
         return result;
     }
 
     @Override
     public void deleteAllEpics() {
         super.deleteAllEpics();
-        saveTasks();
+        save();
     }
 
     @Override
     public Story findStory(long id) {
         Story story = super.findStory(id);
-        saveTasks();
+        save();
         return story;
     }
 
     @Override
     public Story addStory(Story story) {
         Story result = super.addStory(story);
-        saveTasks();
+        save();
         return result;
     }
 
     @Override
     public Story updateStory(long id, Story story) {
         Story result = super.updateStory(id, story);
-        saveTasks();
+        save();
         return result;
     }
 
     @Override
     public Story deleteStory(long id) {
         Story result = super.deleteStory(id);
-        saveTasks();
+        save();
         return result;
     }
 
     @Override
     public void deleteAllStories(Epic epic) {
         super.deleteAllStories(epic);
-        saveTasks();
+        save();
     }
 
     private String toString(HistoryManager historyManager) {
