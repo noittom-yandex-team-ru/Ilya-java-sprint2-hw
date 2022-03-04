@@ -6,6 +6,7 @@ import models.tasks.Story;
 import models.tasks.Task;
 import repositories.tasks.EpicsRepository;
 import repositories.tasks.TasksRepositoryImpl;
+import utils.Managers;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -18,7 +19,7 @@ public class Main {
     public static void main(String[] args) {
 
         //  InMemoryAppManager appManager = (InMemoryAppManager) Managers.getDefault();
-        FileBackedAppManager appManager = new   FileBackedAppManager(Path.of("temp.csv"));
+        FileBackedAppManager appManager = Managers.getFileBacked(Path.of("temp.csv"));
 
         appManager.createEpicsRepository(List.of(
                 Epic.createEpic("Epic1", "First epic"),
