@@ -56,7 +56,10 @@ public final class Story extends AbstractTask {
     }
 
     public static Story createStory(long id, Story story) {
-        return new Builder(id, story.name, story.epic).build();
+        return new Builder(id, story.name, story.epic)
+                .description(story.description)
+                .stateTask(story.stateTask)
+                .build();
     }
 
     public static Story createStory(long id, String name, Epic epic) {
