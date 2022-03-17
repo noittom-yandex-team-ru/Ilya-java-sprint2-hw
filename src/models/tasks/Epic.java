@@ -58,7 +58,7 @@ public final class Epic extends AbstractTask {
     }
 
     public static Epic createEpic(String name, String description) {
-        return new Builder(0, name).build();
+        return new Builder(0, name).description(description).build();
     }
 
     public static Epic createEpic(long id, String name) {
