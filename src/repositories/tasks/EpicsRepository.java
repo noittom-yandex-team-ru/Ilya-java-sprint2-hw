@@ -18,7 +18,7 @@ public class EpicsRepository extends AbstractTasksRepository<Epic> {
         this();
         Objects.requireNonNull(epics, "epics must not be null");
         for (Epic epic : epics) {
-            idEpicMap.put(++counter, Epic.createEpic(counter, epic));
+            idEpicMap.put(counter.increment(), Epic.createEpic(counter.getValue(), epic));
         }
     }
 
@@ -34,7 +34,7 @@ public class EpicsRepository extends AbstractTasksRepository<Epic> {
 
     @Override
     public Epic add(Epic epic) {
-        return idEpicMap.put(++counter, Epic.createEpic(counter, epic));
+        return idEpicMap.put(counter.increment(), Epic.createEpic(counter.getValue(), epic));
     }
 
     @Override
@@ -84,7 +84,7 @@ public class EpicsRepository extends AbstractTasksRepository<Epic> {
     public Story addStory(Story story, Epic epic) {
         Epic mapEpic = idEpicMap.get(epic.getId());
         if (mapEpic == null) return null;
-        return mapEpic.addStory(Story.createStory(++counter, story));
+        return mapEpic.addStory(Story.createStory(counter.increment(), story));
     }
 
     public Story updateStory(long id, Story story) {
