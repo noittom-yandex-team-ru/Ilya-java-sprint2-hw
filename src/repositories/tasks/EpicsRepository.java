@@ -95,7 +95,9 @@ public class EpicsRepository extends AbstractTasksRepository<Epic> {
                 return currentEpic.updateStory(id, story);
             }
             deleteStory(id, currentEpic);
-            return addStory(story, story.getEpic());
+            Epic mapEpic = idEpicMap.get(story.getEpic().getId());
+            if (mapEpic == null) return null;
+            return mapEpic.addStory(Story.createStory(id, story));
         }
         return null;
     }
@@ -106,7 +108,7 @@ public class EpicsRepository extends AbstractTasksRepository<Epic> {
         return deleteStory(id, story.getEpic());
     }
 
-    public Story deleteStory(long id, Epic epic) {
+    private Story deleteStory(long id, Epic epic) {
         Epic mapEpic = idEpicMap.get(epic.getId());
         if (mapEpic == null) return null;
         return mapEpic.removeStory(id);
@@ -116,11 +118,11 @@ public class EpicsRepository extends AbstractTasksRepository<Epic> {
         idEpicMap.get(epic.getId()).removeAllStories();
     }
 
-    public Map<Long, Epic> getIdEpicMap() {
-        return idEpicMap;
-    }
-
     public boolean isEmpty() {
         return idEpicMap.isEmpty();
+    }
+
+    Map<Long, Epic> getIdEpicMap() {
+        return idEpicMap;
     }
 }
