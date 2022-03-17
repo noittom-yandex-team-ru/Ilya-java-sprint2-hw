@@ -2,7 +2,7 @@ package managers;
 
 import managers.history.InMemoryHistoryManager;
 import repositories.tasks.EpicsRepository;
-import repositories.tasks.TasksRepositoryImpl;
+import repositories.tasks.TasksRepository;
 import models.tasks.Epic;
 import models.tasks.Story;
 import models.tasks.Task;
@@ -12,17 +12,17 @@ import java.util.Objects;
 
 public class InMemoryAppManager implements AppManager {
 
-    private TasksRepositoryImpl tasksRepository;
+    private TasksRepository tasksRepository;
     private EpicsRepository epicsRepository;
     protected InMemoryHistoryManager historyManager;
 
     public InMemoryAppManager() {
-        tasksRepository = new TasksRepositoryImpl();
+        tasksRepository = new TasksRepository();
         epicsRepository = new EpicsRepository();
         historyManager = new InMemoryHistoryManager();
     }
 
-    public InMemoryAppManager(TasksRepositoryImpl tasksRepository, EpicsRepository epicsRepository) {
+    public InMemoryAppManager(TasksRepository tasksRepository, EpicsRepository epicsRepository) {
         Objects.requireNonNull(tasksRepository, "tasksRepository must not be null");
         Objects.requireNonNull(epicsRepository, "epicsRepository must not be null");
         this.tasksRepository = tasksRepository;
@@ -30,7 +30,7 @@ public class InMemoryAppManager implements AppManager {
         this.historyManager = new InMemoryHistoryManager();
     }
 
-    public InMemoryAppManager(EpicsRepository epicsRepository, TasksRepositoryImpl tasksRepository) {
+    public InMemoryAppManager(EpicsRepository epicsRepository, TasksRepository tasksRepository) {
         Objects.requireNonNull(epicsRepository, "epicsRepository must not be null");
         Objects.requireNonNull(tasksRepository, "tasksRepository must not be null");
         this.epicsRepository = epicsRepository;
@@ -144,14 +144,14 @@ public class InMemoryAppManager implements AppManager {
     }
 
     public void createTasksRepository(Collection<Task> tasks) {
-        tasksRepository = new TasksRepositoryImpl(tasks);
+        tasksRepository = new TasksRepository(tasks);
     }
 
     public void createEpicsRepository(Collection<Epic> epics) {
         epicsRepository = new EpicsRepository(epics);
     }
 
-    public TasksRepositoryImpl getTasksRepository() {
+    public TasksRepository getTasksRepository() {
         return tasksRepository;
     }
 

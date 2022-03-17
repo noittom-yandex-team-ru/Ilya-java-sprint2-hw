@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 public class CombinedTasksRepository {
     private final LinkedHashMap<Long, AbstractTask> abstractTasks;
 
-    private CombinedTasksRepository(EpicsRepository epicsRepository, TasksRepositoryImpl tasksRepository) {
+    private CombinedTasksRepository(EpicsRepository epicsRepository, TasksRepository tasksRepository) {
         abstractTasks = new LinkedHashMap<>(epicsRepository.size() + tasksRepository.size(), 0.75F, true);
         abstractTasks.putAll(tasksRepository.getIdTaskMap());
         abstractTasks.putAll(epicsRepository.getIdEpicMap());
@@ -17,7 +17,7 @@ public class CombinedTasksRepository {
         }
     }
 
-    private CombinedTasksRepository(TasksRepositoryImpl tasksRepository, EpicsRepository epicsRepository) {
+    private CombinedTasksRepository(TasksRepository tasksRepository, EpicsRepository epicsRepository) {
         this(epicsRepository, tasksRepository);
     }
 
@@ -29,19 +29,19 @@ public class CombinedTasksRepository {
         }
     }
 
-    private CombinedTasksRepository(TasksRepositoryImpl tasksRepository) {
+    private CombinedTasksRepository(TasksRepository tasksRepository) {
         abstractTasks = new LinkedHashMap<>(tasksRepository.size(), 0.75F, true);
         abstractTasks.putAll(tasksRepository.getIdTaskMap());
     }
 
     public static CombinedTasksRepository getInstance(EpicsRepository epicsRepository,
-                                                      TasksRepositoryImpl tasksRepository) {
+                                                      TasksRepository tasksRepository) {
         if (epicsRepository == null || epicsRepository.isEmpty()) return new CombinedTasksRepository(tasksRepository);
         if (tasksRepository == null || tasksRepository.isEmpty()) return new CombinedTasksRepository(epicsRepository);
         return new CombinedTasksRepository(epicsRepository, tasksRepository);
     }
 
-    public static CombinedTasksRepository getInstance(TasksRepositoryImpl tasksRepository,
+    public static CombinedTasksRepository getInstance(TasksRepository tasksRepository,
                                                       EpicsRepository epicsRepository) {
         return getInstance(epicsRepository, tasksRepository);
     }

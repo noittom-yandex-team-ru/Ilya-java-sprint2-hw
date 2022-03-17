@@ -5,7 +5,7 @@ import models.tasks.Epic;
 import models.tasks.Story;
 import models.tasks.Task;
 import repositories.tasks.EpicsRepository;
-import repositories.tasks.TasksRepositoryImpl;
+import repositories.tasks.TasksRepository;
 import utils.Managers;
 
 import java.nio.file.Path;
@@ -76,7 +76,7 @@ public class Main {
         id_counter += 5;
 
         EpicsRepository epicsRepository = appManager.getEpicsRepository();
-        TasksRepositoryImpl tasksRepository = appManager.getTasksRepository();
+        TasksRepository tasksRepository = appManager.getTasksRepository();
 
         System.out.println("Тест №7: " + (epicsRepository.size() == epicsRepository.findAll().size()
                 && tasksRepository.size() == tasksRepository.findAll().size()));

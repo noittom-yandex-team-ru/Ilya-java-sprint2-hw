@@ -2,17 +2,20 @@ package repositories.tasks;
 
 import models.tasks.Task;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
-public class TasksRepositoryImpl extends AbstractTasksRepository<Task> {
+public class TasksRepository extends AbstractTasksRepository<Task> {
 
     private final Map<Long, Task> idTaskMap;
 
-    public TasksRepositoryImpl() {
+    public TasksRepository() {
         idTaskMap = new HashMap<>();
     }
 
-    public TasksRepositoryImpl(Collection<Task> tasks) {
+    public TasksRepository(Collection<Task> tasks) {
         this();
         Objects.requireNonNull(tasks, "tasks must not be null");
         for (Task task : tasks) {
