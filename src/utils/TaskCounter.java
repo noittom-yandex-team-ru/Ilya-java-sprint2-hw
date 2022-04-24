@@ -3,12 +3,15 @@ package utils;
 public class TaskCounter {
     private long counter;
 
-    public TaskCounter(long startValue) {
-        counter = startValue;
+    private TaskCounter() {
     }
 
-    public TaskCounter() {
-        counter = 0;
+    private static class HolderTaskCounter {
+        private final static TaskCounter instance = new TaskCounter();
+    }
+
+    public static TaskCounter getInstance() {
+        return HolderTaskCounter.instance;
     }
 
     public long getValue() {

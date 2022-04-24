@@ -8,6 +8,7 @@ import models.tasks.AbstractTask;
 import models.tasks.Epic;
 import models.tasks.Story;
 import models.tasks.Task;
+import repositories.tasks.AbstractTasksRepository;
 import repositories.tasks.CombinedTasksRepository;
 
 import java.io.BufferedWriter;
@@ -15,10 +16,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
+
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
 public class FileBackedAppManager extends InMemoryAppManager {
     private final Path path;
@@ -30,13 +32,13 @@ public class FileBackedAppManager extends InMemoryAppManager {
     }
 
     public static FileBackedAppManager getInstance(Path path) {
-        FileBackedAppManager fileBackedAppManager = new FileBackedAppManager(path);
+        final FileBackedAppManager fileBackedAppManager = new FileBackedAppManager(path);
         fileBackedAppManager.load();
         return fileBackedAppManager;
     }
 
     public void save() {
-        final String HEADER = "id,type,name,status,description,epic";
+        final String HEADER = "id,type,name,status,description,duration,startTime,epic";
         combinedTasksRepository = CombinedTasksRepository.getInstance(getEpicsRepository(), getTasksRepository());
         try (BufferedWriter fileWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             fileWriter.write(HEADER);
@@ -52,25 +54,38 @@ public class FileBackedAppManager extends InMemoryAppManager {
         }
     }
 
+    private void clearData() {
+        clearRepositories();
+        clearHistory();
+        tasksSortedByStartTime.clear();
+        tasksWithStartTimeIsNull.clear();
+    }
+
     public void load() {
+        clearData();
         List<String> lines;
         try {
-            lines = Files.readAllLines(Files.createFile(path));
+            if (Files.notExists(path)) Files.createFile(path);
+            lines = Files.readAllLines(path);
         } catch (IOException e) {
             throw new ManagerSaveException("Ошибка во время загрузки файлы!");
         }
 
         if (lines.size() > 1) {
-            for (int i = 1; i < lines.size() - 2; i++) {
-                AbstractTask abstractTask = taskFromString(lines.get(i));
-                TypeTask typeTask = abstractTask.getTypeTask();
+            HashMap<Long, AbstractTask> newAbstractTasksByOldIds = new HashMap<>();
+            for (int i = 1; i < lines.size() - 1; i++) {
+                final String line = lines.get(i);
+                if (line.isBlank()) break;
+                final AbstractTask abstractTask = taskFromString(line, newAbstractTasksByOldIds);
+                final Long abstractTaskId = abstractTask.getId();
+                newAbstractTasksByOldIds.put(abstractTaskId, abstractTask);
+                final TypeTask typeTask = abstractTask.getTypeTask();
                 if (typeTask.isEpic()) {
-                    super.addEpic((Epic) abstractTask);
+                    newAbstractTasksByOldIds.put(abstractTaskId, super.addEpic((Epic) abstractTask));
                 } else if (typeTask.isStory()) {
-                    Story story = (Story) abstractTask;
-                    super.addStory(story);
+                    newAbstractTasksByOldIds.put(abstractTaskId, super.addStory((Story) abstractTask));
                 } else {
-                    super.addTask((Task) abstractTask);
+                    newAbstractTasksByOldIds.put(abstractTaskId, super.addTask((Task) abstractTask));
                 }
             }
 
@@ -78,21 +93,25 @@ public class FileBackedAppManager extends InMemoryAppManager {
 
             String historyLine = lines.get(lines.size() - 1);
             if (!historyLine.isBlank()) {
-                historyFromString(historyLine);
+                historyFromString(historyLine, newAbstractTasksByOldIds);
             }
         }
+    }
 
+    private void clearRepositories() {
+        AbstractTasksRepository.TASK_COUNTER.reset();
+        getEpicsRepository().clear();
+        getTasksRepository().clear();
+    }
+
+    private void clearHistory() {
+        getHistoryManager().clear();
     }
 
     @Override
-    public void createTasksRepository(Collection<Task> tasks) {
-        super.createTasksRepository(tasks);
-        save();
-    }
-
-    @Override
-    public void createEpicsRepository(Collection<Epic> epics) {
-        super.createEpicsRepository(epics);
+    public <T extends AbstractTask> void createRepository(Collection<T> abstractTasks,
+                                                          Class<? extends AbstractTasksRepository<T>> tasksRepositoryClass) {
+        super.createRepository(abstractTasks, tasksRepositoryClass);
         save();
     }
 
@@ -210,13 +229,11 @@ public class FileBackedAppManager extends InMemoryAppManager {
         return sb.toString();
     }
 
-    private List<AbstractTask> historyFromString(String value) {
-        String[] values = value.split(",");
-
-        if (values.length != 0) {
-            Map<Long, AbstractTask> tasks = combinedTasksRepository.getAbstractTasks();
-            for (String id : values) {
-                super.historyManager.add(tasks.get(Long.parseLong(id)));
+    private List<AbstractTask> historyFromString(String value, HashMap<Long, AbstractTask> newAbstractTasksByOldIds) {
+        String[] ids = value.split(",");
+        if (ids.length != 0) {
+            for (String id : ids) {
+                super.historyManager.add(newAbstractTasksByOldIds.get(Long.parseLong(id)));
             }
         }
 
@@ -236,6 +253,14 @@ public class FileBackedAppManager extends InMemoryAppManager {
                 .append(abstractTask.getStateTask())
                 .append(",")
                 .append(abstractTask.getDescription())
+                .append(",")
+                .append(Optional.ofNullable(abstractTask.getDuration())
+                        .map(Duration::toString)
+                        .orElse(""))
+                .append(",")
+                .append(Optional.ofNullable(abstractTask.getStartTime())
+                        .map(startTime -> startTime.format(ISO_LOCAL_DATE_TIME))
+                        .orElse(""))
                 .append(",");
 
         if (typeTask.isStory()) {
@@ -245,26 +270,37 @@ public class FileBackedAppManager extends InMemoryAppManager {
         return sb.append(System.lineSeparator()).toString();
     }
 
-    private AbstractTask taskFromString(String value) {
-        String[] split = value.trim().split(",");
+    private AbstractTask taskFromString(String value, HashMap<Long, AbstractTask> newAbstractTasksByOldIds) {
+        String[] split = value.trim().split(",", 8);
 
-        if (split.length > 6 || split.length < 5) throw new IllegalArgumentException();
+        if (split.length > 8 || split.length < 4) throw new IllegalArgumentException();
 
         long id = Long.parseLong(split[0]);
         TypeTask typeTask = TypeTask.valueOf(split[1]);
         String name = split[2];
         StateTask stateTask = StateTask.valueOf(split[3]);
         String description = split[4];
+        String duration = split[5];
+        String startTime = split[6];
 
         if (typeTask.isEpic()) {
-            return Epic.createEpic(id, name, stateTask, description);
+            return Epic.createEpic(id, name, stateTask, description,
+                    duration.isEmpty() ? null : Duration.parse(duration),
+                    startTime.isEmpty() ? null : LocalDateTime.parse(startTime, ISO_LOCAL_DATE_TIME));
         }
 
         if (typeTask.isStory()) {
-            long epicId = Long.parseLong(split[5]);
-            return Story.createStory(id, name, description, super.findEpic(epicId), stateTask);
+            long epicId = Long.parseLong(split[7]);
+            return Story.createStory(id, name, description,
+                    super.findEpic(newAbstractTasksByOldIds.get(epicId).getId()),
+                    stateTask,
+                    duration.isEmpty() ? null : Duration.parse(duration),
+                    startTime.isEmpty() ? null : LocalDateTime.parse(startTime, ISO_LOCAL_DATE_TIME));
         }
 
-        return Task.createTask(id, name, stateTask, description);
+        return Task.createTask(id, name, description, stateTask,
+                duration.isEmpty() ? null : Duration.parse(duration),
+                startTime.isEmpty() ? null : LocalDateTime.parse(startTime, ISO_LOCAL_DATE_TIME));
     }
 }
+

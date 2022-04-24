@@ -49,4 +49,8 @@ public class CombinedTasksRepository {
     public LinkedHashMap<Long, AbstractTask> getAbstractTasks() {
         return abstractTasks;
     }
+
+    public void clear() {
+        abstractTasks.clear();
+    }
 }

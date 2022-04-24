@@ -9,6 +9,8 @@ import repositories.tasks.TasksRepository;
 import utils.Managers;
 
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 
 public class Main {
@@ -17,15 +19,17 @@ public class Main {
     static int id_counter = 0;
 
     public static void main(String[] args) {
+        Period period = Period.between(LocalDate.of(2021, 11, 15), LocalDate.of(2021, 11, 19));
+
 
         //  InMemoryAppManager appManager = (InMemoryAppManager) Managers.getDefault();
         FileBackedAppManager appManager = Managers.getFileBacked(Path.of("temp.csv"));
 
-        appManager.createEpicsRepository(List.of(
+        appManager.createRepository(List.of(
                 Epic.createEpic("Epic1", "First epic"),
                 Epic.createEpic("Epic2"),
                 Epic.createEpic("Epic3")
-        ));
+        ), EpicsRepository.class);
         id_counter += 3;
 
 
@@ -59,20 +63,19 @@ public class Main {
         System.out.println("Тест №4: " + (epic1.getStories().size() == 1));
 
         appManager.deleteStory(10);
-        appManager.deleteStory(10);
         System.out.println("Тест №5: " + (epic2.getStories().size() == 4));
 
         Story newStory = Story.createStory(19, "NameStory", epic1);
         appManager.updateStory(newStory.getId(), newStory);
         System.out.println("Тест №6: " + newStory.equals(epic1.getStory(19)));
 
-        appManager.createTasksRepository(List.of(
+        appManager.createRepository(List.of(
                 Task.createTask("Task1", "First task"),
                 Task.createTask("Task2"),
                 Task.createTask("Task3"),
                 Task.createTask("Task4"),
                 Task.createTask("Task5")
-        ));
+        ), TasksRepository.class);
         id_counter += 5;
 
         EpicsRepository epicsRepository = appManager.getEpicsRepository();

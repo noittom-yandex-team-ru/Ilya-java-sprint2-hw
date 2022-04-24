@@ -6,7 +6,7 @@ import java.util.*;
 
 public class InMemoryHistoryManager implements HistoryManager {
     private final HashMap<Long, LinkedTaskList.NodeTask> nodeMap = new HashMap<>();
-    private final LinkedTaskList history = new LinkedTaskList();
+    private LinkedTaskList history = new LinkedTaskList();
 
     @Override
     public void add(AbstractTask task) {
@@ -23,6 +23,12 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public List<AbstractTask> getHistory() {
         return history.getTasks();
+    }
+
+    @Override
+    public void clear() {
+        nodeMap.clear();
+        history = new LinkedTaskList();
     }
 
     private static class LinkedTaskList implements Iterable<AbstractTask> {

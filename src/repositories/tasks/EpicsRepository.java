@@ -18,7 +18,7 @@ public class EpicsRepository extends AbstractTasksRepository<Epic> {
         this();
         Objects.requireNonNull(epics, "epics must not be null");
         for (Epic epic : epics) {
-            idEpicMap.put(counter.increment(), Epic.createEpic(counter.getValue(), epic));
+            idEpicMap.put(TASK_COUNTER.increment(), Epic.createEpic(TASK_COUNTER.getValue(), epic));
         }
     }
 
@@ -34,7 +34,9 @@ public class EpicsRepository extends AbstractTasksRepository<Epic> {
 
     @Override
     public Epic add(Epic epic) {
-        return idEpicMap.put(counter.increment(), Epic.createEpic(counter.getValue(), epic));
+        final Epic newEpic;
+        idEpicMap.put(TASK_COUNTER.increment(), newEpic = Epic.createEpic(TASK_COUNTER.getValue(), epic));
+        return newEpic;
     }
 
     @Override
@@ -82,20 +84,20 @@ public class EpicsRepository extends AbstractTasksRepository<Epic> {
     }
 
     public Story addStory(Story story, Epic epic) {
-        Epic mapEpic = idEpicMap.get(epic.getId());
+        final Epic mapEpic = idEpicMap.get(epic.getId());
         if (mapEpic == null) return null;
-        return mapEpic.addStory(Story.createStory(counter.increment(), story));
+        return mapEpic.addStory(Story.createStory(TASK_COUNTER.increment(), story));
     }
 
     public Story updateStory(long id, Story story) {
-        Story mapStory = findStory(id);
+        final Story mapStory = findStory(id);
         if (mapStory != null) {
-            Epic currentEpic = mapStory.getEpic();
+            final Epic currentEpic = mapStory.getEpic();
             if (currentEpic.getId() == story.getEpic().getId()) {
                 return currentEpic.updateStory(id, story);
             }
             deleteStory(id, currentEpic);
-            Epic mapEpic = idEpicMap.get(story.getEpic().getId());
+            final Epic mapEpic = idEpicMap.get(story.getEpic().getId());
             if (mapEpic == null) return null;
             return mapEpic.addStory(Story.createStory(id, story));
         }
@@ -103,13 +105,13 @@ public class EpicsRepository extends AbstractTasksRepository<Epic> {
     }
 
     public Story deleteStory(long id) {
-        Story story = findStory(id);
+        final Story story = findStory(id);
         if (story == null) return null;
         return deleteStory(id, story.getEpic());
     }
 
     private Story deleteStory(long id, Epic epic) {
-        Epic mapEpic = idEpicMap.get(epic.getId());
+        final Epic mapEpic = idEpicMap.get(epic.getId());
         if (mapEpic == null) return null;
         return mapEpic.removeStory(id);
     }

@@ -1,8 +1,10 @@
 package managers;
 
+import models.tasks.AbstractTask;
 import models.tasks.Epic;
 import models.tasks.Story;
 import models.tasks.Task;
+import repositories.tasks.AbstractTasksRepository;
 
 import java.util.Collection;
 
@@ -44,4 +46,9 @@ public interface AppManager {
     Story deleteStory(long id);
 
     void deleteAllStories(Epic epic);
+
+    <T extends AbstractTask> void createRepository(Collection<T> abstractTasks,
+                                                   Class<? extends AbstractTasksRepository<T>> tasksRepositoryClass);
+
+    long size();
 }

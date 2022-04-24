@@ -10,4 +10,6 @@ public interface HistoryManager {
     void remove(long id);
 
     List<AbstractTask> getHistory();
+
+    void clear();
 }

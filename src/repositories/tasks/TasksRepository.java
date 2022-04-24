@@ -19,7 +19,7 @@ public class TasksRepository extends AbstractTasksRepository<Task> {
         this();
         Objects.requireNonNull(tasks, "tasks must not be null");
         for (Task task : tasks) {
-            idTaskMap.put(counter.increment(), Task.createTask(counter.getValue(), task));
+            idTaskMap.put(TASK_COUNTER.increment(), Task.createTask(TASK_COUNTER.getValue(), task));
         }
     }
 
@@ -35,12 +35,14 @@ public class TasksRepository extends AbstractTasksRepository<Task> {
 
     @Override
     public Task add(Task task) {
-        return idTaskMap.put(counter.increment(), Task.createTask(counter.getValue(), task));
+        final Task newTask;
+        idTaskMap.put(TASK_COUNTER.increment(), newTask = Task.createTask(TASK_COUNTER.getValue(), task));
+        return newTask;
     }
 
     @Override
     public Task update(long id, Task task) {
-        Task currentTask = idTaskMap.get(id);
+        final Task currentTask = idTaskMap.get(id);
         if (currentTask != null) {
             return currentTask.setTask(task);
         }
