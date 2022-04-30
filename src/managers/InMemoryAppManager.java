@@ -20,14 +20,15 @@ public class InMemoryAppManager implements AppManager {
     protected EpicsRepository epicsRepository;
     protected InMemoryHistoryManager historyManager;
     protected TreeSet<AbstractTask> tasksSortedByStartTime;
-    protected List<AbstractTask> tasksWithStartTimeIsNull;
 
     public InMemoryAppManager() {
         tasksRepository = new TasksRepository();
         epicsRepository = new EpicsRepository();
         historyManager = new InMemoryHistoryManager();
-        tasksSortedByStartTime = new TreeSet<>(Comparator.comparing(AbstractTask::getEndTime));
-        tasksWithStartTimeIsNull = new ArrayList<>();
+        tasksSortedByStartTime = new TreeSet<>(
+                Comparator.comparing(AbstractTask::getStartTime, Comparator.nullsLast(Comparator.naturalOrder()))
+                        .thenComparingLong(AbstractTask::getId)
+        );
     }
 
     public Collection<Task> findAllTasks() {
@@ -195,26 +196,15 @@ public class InMemoryAppManager implements AppManager {
     }
 
     public List<AbstractTask> getPrioritizedTasks() {
-        return new ArrayList<>() {{
-            addAll(tasksSortedByStartTime);
-            addAll(tasksWithStartTimeIsNull);
-        }};
+        return new ArrayList<>(tasksSortedByStartTime);
     }
 
 
     private void addToPrioritizedListTasks(Task task) {
-        if (task.getStartTime() == null) {
-            tasksWithStartTimeIsNull.add(task);
-            return;
-        }
         tasksSortedByStartTime.add(task);
     }
 
     private void addToPrioritizedListStories(Story story) {
-        if (story.getStartTime() == null) {
-            tasksWithStartTimeIsNull.add(story);
-            return;
-        }
         tasksSortedByStartTime.add(story);
     }
 
@@ -227,7 +217,7 @@ public class InMemoryAppManager implements AppManager {
                 for (AbstractTask prioritizedTask : prioritizedTasks) {
                     final LocalDateTime startTimePrioritizedTask = prioritizedTask.getStartTime();
                     final LocalDateTime endTimePrioritizedTask = prioritizedTask.getEndTime();
-                    if (intersected(startTimeCheckedTask, endTimeCheckedTask,
+                    if (startTimePrioritizedTask != null && intersected(startTimeCheckedTask, endTimeCheckedTask,
                             startTimePrioritizedTask, endTimePrioritizedTask)) {
                         return true;
                     }

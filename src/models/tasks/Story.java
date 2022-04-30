@@ -154,10 +154,6 @@ public final class Story extends AbstractTask {
         this.stateTask = stateTask;
     }
 
-    public LocalDateTime getEndTime() {
-        return startTime.plus(duration);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

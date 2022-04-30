@@ -58,7 +58,6 @@ public class FileBackedAppManager extends InMemoryAppManager {
         clearRepositories();
         clearHistory();
         tasksSortedByStartTime.clear();
-        tasksWithStartTimeIsNull.clear();
     }
 
     public void load() {
