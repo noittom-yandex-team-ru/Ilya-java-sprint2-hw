@@ -131,6 +131,11 @@ public class InMemoryAppManager implements AppManager {
     }
 
     @Override
+    public Collection<Story> findAllStories(long epicId) {
+        return epicsRepository.find(epicId).getStories();
+    }
+
+    @Override
     public Story findStory(long id) {
         Story story = epicsRepository.findStory(id);
         if (story == null) throw new ManagerWrongIdException(TypeTask.STORY, id);

@@ -37,6 +37,8 @@ public interface AppManager {
 
     Collection<Story> findAllStories(Epic epic);
 
+    Collection<Story> findAllStories(long epicId);
+
     Story findStory(long id);
 
     Story addStory(Story story);
